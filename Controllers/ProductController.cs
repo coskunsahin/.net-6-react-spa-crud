@@ -20,7 +20,8 @@ namespace Project2.Controllers
         public IActionResult liste()
         {
              
-                var product = _dbContext.Products.Select(x => new { name = x.ProductName, quantity = x.QuantityPerUnit, price = x.UnitPrice, id = x.ProductId, supplierId = x.SupplierId, Instock=x.UnitsInStock }).OrderByDescending(x=>x.id).ThenBy(x=>x.Instock).ToList();
+                var product = _dbContext.Products.Select(x => new { name = x.ProductName, quantity = x.QuantityPerUnit, price = x.UnitPrice, id = x.ProductId, supplierId = x.SupplierId, instock=x.UnitsInStock
+                }).ToList();
                 return StatusCode(StatusCodes.Status200OK, product);
 
         }
@@ -32,17 +33,63 @@ namespace Project2.Controllers
             var product = new Product
             {
                 ProductName = pr.name,
-              //  UnitPrice = pr.price,
-               // QuantityPerUnit = pr.quantity,
-                //SupplierId = pr.supplierId,
-               // UnitsInStock = pr.inStock
-               
+                UnitPrice = pr.price,
+                QuantityPerUnit = pr.quantity,
+                SupplierId = pr.supplierId,
+                UnitsInStock = pr.inStock
+
 
             };
         await _dbContext.Products.AddAsync(product);
             await _dbContext.SaveChangesAsync();
              return StatusCode(StatusCodes.Status200OK, "Ok"); 
         }
+        [HttpPut("Edit")]
+        public async Task<IActionResult> Edit([FromBody] ProductVM pr)
+        {
+            try
+            {
+                var product = _dbContext.Products.Find(pr.id);
+
+                product.ProductName = pr.name;
+           product.UnitPrice = pr.price;
+                product.QuantityPerUnit = pr.quantity;
+                product.SupplierId = pr.supplierId; 
+                product.UnitsInStock = pr.inStock;
+
+
+                await _dbContext.SaveChangesAsync();
+                return Ok(product);
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+
+
+
+
+        //[HttpPut]
+        //[Route("Edit")] //GUARDAR
+        //public async Task<IActionResult> Edit([FromBody] ProductVM pr)
+        //{
+
+        //    var product = new Product
+        //    {
+        //        ProductName = pr.name,
+        //        UnitPrice = pr.price,
+        //        QuantityPerUnit = pr.quantity,
+        //        SupplierId = pr.supplierId,
+        //        UnitsInStock = pr.inStock
+
+
+        //    };
+        //     _dbContext.Products.Update(product);
+        //    await _dbContext.SaveChangesAsync();
+        //    return StatusCode(StatusCodes.Status200OK, "Ok");
+        //}
         [HttpDelete]
         [Route("close/{id:int}")]//gerrar
         public async Task<IActionResult> Close(int id)

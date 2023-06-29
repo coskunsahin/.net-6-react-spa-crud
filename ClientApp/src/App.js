@@ -1,117 +1,129 @@
+/* eslint-disable react/jsx-no-undef */
 import { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css"
-const App = () => {
+import { Col, Container, Row, Card, CardHeader, CardBody, Button } from "reactstrap"
 
-    const [product, setProduct] = useState([])
-    const [name, setName] = useState("");
-    const viewProduct = async () => {
+import TableProduct from "./components/TableProduct"
+import ModelProducts from "./components/ModelProducts"
+const App = () => {
+    const [products, setProducts] = useState([])
+    const [viewModal, setViewModal] = useState(false);
+    const [edit, setEdit] = useState(null)
+
+
+    const viewproduct = async () => {
 
         const response = await fetch("api/Product/liste");
 
         if (response.ok) {
             const data = await response.json();
-            console.log(data)
-            setProduct(data)
+            setProducts(data)
         } else {
-            console.log("status code:" + response.status)
+            console.log("error en la lista")
         }
+
     }
 
-    
+
     useEffect(() => {
-        viewProduct();
+
+        viewproduct()
     }, [])
 
-  
-    const saveProduct = async (e) => {
-        
-        e.preventDefault()
+
+
+    const saveProduct = async (product) => {
 
         const response = await fetch("api/Product/save", {
-            method: "POST",
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8'
             },
-            body: JSON.stringify({ name: name })
+            body: JSON.stringify(product)
+        })
+        if (response.ok) {
+            setViewModal(!viewModal);
+            viewproduct();
+        }
+    }
+
+    const editProduct = async (product) => {
+
+        const response = await fetch("api/Product/Edit", {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify(product)
+        })
+        if (response.ok) {
+            setViewModal(!viewModal);
+            viewproduct();
+        }
+    }
+
+    const eliminarContacto = async (id) => {
+
+        var respuesta = window.confirm("desea eliminar el contacto?")
+
+        if (!respuesta) {
+            return;
+        }
+
+
+        const response = await fetch("api/Product/close/" + id, {
+            method: 'DELETE',
         })
 
         if (response.ok) {
-            setName("");
-            await viewProduct();
+            viewproduct();
         }
     }
 
 
-    const closeProduct = async (id) => {
 
-        const response = await fetch("api/Product/close/" + id, {
-            method: "DELETE"
-        })
-
-        if (response.ok)
-            await viewProduct();
-    }
-
-
-    //3.- create div and table
     return (
+        <Container>
+            <Row className="mt-5">
 
-        <div className="container bg-dark p-4 vh-100">
+                <Col sm="12">
+                    <Card>
+                        <CardHeader>
+                            <h5>Lista de product</h5>
+                        </CardHeader>
+                        <CardBody>
+                            <Button size="sm" color="success"
+                                onClick={() => setViewModal(!viewModal)}
+                            >Nuevo product</Button>
+                            <hr></hr>
+                            <TableProduct data={products}
+                                setEdit={setEdit}
+                                viewModal={viewModal}
+                                setViewModal={setViewModal}
 
-            <h2 className="text-white">List Product</h2>
-            <div className="row">
+                                eliminarContacto={eliminarContacto}
+                            />
+                        </CardBody>
+                    </Card>
+                </Col>
 
-                <div className="col-sm-12">
-                   
-                    <form onSubmit={saveProduct}> 
+            </Row>
 
-                        <div className="input-group">
-                            <input type="text" className="form-control"
-                                placeholder="Enter Name"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)} />
+            <ModelProducts
+                viewModal={viewModal}
 
-                            <button className="btn btn-success">Add</button>
-                        </div>
-
-                    </form>
-                </div>
-
-            </div>
+                setViewModal={setViewModal}
+                saveProduct={saveProduct}
 
 
-       
-            <div className="row mt-4">
-                <div className="col-sm-12">
-
-               
-                    <div className="list-group">   
-                        {
-                            product.map(
-                                (item) => (
-                                    <div key={item.id} className="list-group-item list-group-item-action">
-
-                                        <h5 className="text-primary">{item.name}</h5>
-
-                                        <div className="d-flex justify-content-between">    
-                                            <small className="text-muted">{(item.quantity)}</small>
-                                            <button type="button" className="btn btn-sm btn-outline-danger"
-                                           
-                                                onClick={() => closeProduct(item.id)}>
-                                                Close
-                                            </button>
-                                        </div>
-
-                                    </div>
-                                )
-                            )
-                        }
-                    </div>
-                </div>
-
-            </div>
-        </div>
+                edit
+                ={edit}
+                setEdit={setEdit}
+                editProduct={editProduct}
+            />
+        </Container>
     )
+
 }
 
 export default App;
