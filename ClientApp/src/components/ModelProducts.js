@@ -100,7 +100,7 @@ const ModelProducts = ({
 
             <ModalFooter>
                 <Button color="primary" size="sm" onClick={enviarDatos}>SAVE</Button>
-                <Button color="danger" size="sm" onClick={cerrarModal} >Cerrar</Button>
+                <Button color="danger" size="sm" onClick={cerrarModal} >Cancel</Button>
              
             </ModalFooter>
         </Modal>

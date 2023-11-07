@@ -10,7 +10,7 @@ const App = () => {
     const [viewModal, setViewModal] = useState(false);
     const [edit, setEdit] = useState(null)
 
-
+   
     const viewproduct = async () => {
 
         const response = await fetch("api/Product/liste");
@@ -94,7 +94,7 @@ const App = () => {
                         <CardBody>
                             <Button size="sm" color="success"
                                 onClick={() => setViewModal(!viewModal)}
-                            >Nuevo product</Button>
+                            >New product</Button>
                             <hr></hr>
                             <TableProduct data={products}
                                 setEdit={setEdit}
